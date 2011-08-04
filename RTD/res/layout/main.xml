@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+  	xmlns:android="http://schemas.android.com/apk/res/android"
+ 	android:layout_width="fill_parent"
+  	android:layout_height="fill_parent" 
+  	android:fitsSystemWindows="true"
+  	android:background="@drawable/bg_unedited">
+  	
+	<LinearLayout 
+		android:id="@+id/linearLayout1" 
+		android:layout_width="fill_parent" 
+		android:layout_height="fill_parent" 
+		xmlns:android="http://schemas.android.com/apk/res/android" android:orientation="vertical">
+		
+		<TextView 
+			android:id="@+id/logo" 
+			android:layout_width="fill_parent" 
+			android:layout_height="wrap_content" 
+			android:text="HPWREN"
+			android:textSize="40dp"></TextView>
+			
+		<TextView 
+			android:id="@+id/subtitle" 
+			android:layout_width="fill_parent" 
+			android:layout_height="wrap_content" 
+			android:text="High Preformance Wireless Research &amp; Education Network \n\n"
+			android:textSize="10dp"></TextView>
+  		
+	    <Button 
+	    	android:layout_height="wrap_content"
+	    	android:id="@+id/buttonMap" 
+	    	android:text="Map" 
+	    	android:layout_width="fill_parent"></Button>
+	    
+	   	<Button 
+	    	android:layout_height="wrap_content"
+	    	android:id="@+id/buttonLocation" 
+	    	android:text="Location" 
+	    	android:layout_width="fill_parent"></Button>
+	    	
+	    <Button 
+	    	android:layout_height="wrap_content"
+	    	android:id="@+id/buttonTower" 
+	    	android:text="Tower" 
+	    	android:layout_width="fill_parent"></Button>
+    	
+    	</LinearLayout>
+    	
+		<LinearLayout 
+		  	android:id="@+id/bottom_row"
+		   	android:layout_alignParentBottom="true" 
+		   	android:orientation="horizontal" 
+		   	android:layout_width="fill_parent" 
+		   	android:gravity="center" 
+		   	android:layout_height="wrap_content">
+		    	
+		   	<Button 
+		   		android:layout_height="wrap_content"
+		   		android:id="@+id/buttonSetting" 
+		   		android:text="Setting" 
+		   		android:layout_width="fill_parent"></Button>
+		           
+		</LinearLayout>
+   	
+</RelativeLayout>
