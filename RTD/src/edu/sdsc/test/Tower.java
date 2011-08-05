@@ -30,7 +30,7 @@ import android.widget.AdapterView.OnItemSelectedListener;
 
 public class Tower extends Activity {
 	private static final int[] FROM_COLOR = new int[]{255, 255, 255};
-	public static final int CLASS1 = 1, CLASS2 = 2, CLASS3 = 3, CLASS4 = 4, CLASS5 = 5;
+	public static final int CLASS1 = 5, CLASS2 = 6, CLASS3 = 7, CLASS4 = 8, CLASS5 = 9;
 	private static final int THRESHOLD = 3;
 	private String[] ports, lat, lng;
 	private Drawable arrow;
@@ -44,6 +44,7 @@ public class Tower extends Activity {
 	private ImageView arrowView;
 	private int ctr = 0;
 	private Context context = this;
+	private int currentColor = Color.WHITE;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -69,7 +70,7 @@ public class Tower extends Activity {
 	    tv = (TextView)findViewById(R.id.textViewInfo);
 	    arrowView = (ImageView)findViewById(R.id.arrowView);
 	    arrow = getResources().getDrawable(R.drawable.arrow2);
-	    arrowView.setImageDrawable(arrow);
+	    
 	    ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
 	            this, R.array.location_array, android.R.layout.simple_spinner_item);
 	    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -123,7 +124,7 @@ public class Tower extends Activity {
 
 	    }
 
-	    public void onNothingSelected(AdapterView parent) {
+	    public void onNothingSelected(AdapterView<?> parent) {
 	      // Do nothing.
 	    }
 	}
@@ -132,7 +133,7 @@ public class Tower extends Activity {
 	private class InfoGrabber extends AsyncTask<String, String, String> {
 		Socket socket;
 		int startPort = currentPort;
-		
+        
 	    @Override
 	        protected String doInBackground(String... params) {
 	    	if(currentPort == 00000){
@@ -151,9 +152,7 @@ public class Tower extends Activity {
 		   	        	BufferedReader in = new BufferedReader(new
 		   	 	   	    InputStreamReader(socket.getInputStream()));
 						String message = in.readLine();
-						publishProgress(Getter.makeReadable(message));
-						//arrowView.setImageDrawable(rotateDrawable(Getter.getDegree(message)));
-						//arrowView.setImageDrawable(adjust(arrow, Getter.getSpeed(message)));
+						publishProgress(message);
 						ctr++;
 					} catch (IOException e) {
 						// TODO Auto-generated catch block
@@ -167,7 +166,9 @@ public class Tower extends Activity {
 
 	     @Override
 	     protected void onProgressUpdate(String... values) {
-		     tv.setText(values[0]+"\nLine Number: "+ctr);
+		     tv.setText(Getter.makeReadable(values[0])+"\nLine Number: "+ctr);
+		     arrowView.setImageDrawable(adjust(rotateDrawable(Getter.getDegree(values[0])),Getter.getSpeed(values[0])));
+		     
 	     }
 	     
 
@@ -184,15 +185,18 @@ public class Tower extends Activity {
 	         }if(severity >= CLASS5){
 	        	 to = Color.BLACK;
 	         }
-	         Log.d("Tower", severity+"");
-	         Bitmap src = ((BitmapDrawable) d).getBitmap();
-	         Bitmap bitmap = src.copy(Bitmap.Config.ARGB_8888, true);
-	         for(int x = 0;x < bitmap.getWidth();x++)
-	             for(int y = 0;y < bitmap.getHeight();y++)
-	                 if(match(bitmap.getPixel(x, y))) 
-	                     bitmap.setPixel(x, y, to);
-
-	         return new BitmapDrawable(bitmap);
+	         if(currentColor != to){
+		         Bitmap src = ((BitmapDrawable) d).getBitmap();
+		         Bitmap bitmap = src.copy(Bitmap.Config.ARGB_8888, true);
+		         for(int x = 0;x < bitmap.getWidth();x++)
+		             for(int y = 0;y < bitmap.getHeight();y++)
+		                 if(match(bitmap.getPixel(x, y))) 
+		                     bitmap.setPixel(x, y, to);
+	
+		         return new BitmapDrawable(bitmap);
+	         }else{
+	        	 return d;
+	         }
 	     }
 
 	     private boolean match(int pixel){
@@ -201,25 +205,26 @@ public class Tower extends Activity {
 	             Math.abs(Color.blue(pixel) - FROM_COLOR[2]) < THRESHOLD;
 	     }
 	     
-	     public Drawable rotateDrawable(float angle)
-	     {
-	       Bitmap arrowBitmap = BitmapFactory.decodeResource(context.getResources(), 
-	                                                         R.drawable.arrow2);
-	       // Create blank bitmap of equal size
-	       Bitmap canvasBitmap = arrowBitmap.copy(Bitmap.Config.ARGB_8888, true);
-	       canvasBitmap.eraseColor(0x00000000);
+	     public Drawable rotateDrawable(int angle){
+	         Bitmap bm = BitmapFactory.decodeResource(getResources(), 
+	                R.drawable.arrow2);
+	         
+	         int width = bm.getWidth();
+	         int height = bm.getHeight();
+	         
+	         Matrix matrix = new Matrix();
 
-	       // Create canvas
-	       Canvas canvas = new Canvas(canvasBitmap);
+	         
+	         // rotate the Bitmap
+	         matrix.postRotate(angle);
 
-	       // Create rotation matrix
-	       Matrix rotateMatrix = new Matrix();
-	       rotateMatrix.setRotate(angle, canvas.getWidth()/2, canvas.getHeight()/2);
-
-	       // Draw bitmap onto canvas using matrix
-	       canvas.drawBitmap(arrowBitmap, rotateMatrix, null);
-
-	       return new BitmapDrawable(canvasBitmap); 
+	         // recreate the new Bitmap
+	         Bitmap resizedBitmap = Bitmap.createBitmap(bm, 0, 0, 
+	                           width, height, matrix, true); 
+	     
+	         // make a Drawable from Bitmap to allow to set the BitMap 
+	         // to the ImageView, ImageButton or what ever
+	         return new BitmapDrawable(resizedBitmap);
 	     }
 
 

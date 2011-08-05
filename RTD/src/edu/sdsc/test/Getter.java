@@ -6,8 +6,13 @@ import java.net.Socket;
 
 
 public class Getter {
+	//The IP for rtd.hprewn.ucsd.edu
 	public static final String IP = "198.202.124.3";
 	
+	/* @param The port number for the tower
+	 * @return 1 line of data
+	 * Not efficient try not to use
+	 */
 	public static String get(int port){
 		if(port == 00000){
 			return "incorrect port";
@@ -18,14 +23,16 @@ public class Getter {
   	        InputStreamReader(appSoc.getInputStream()));
   	        String message = in.readLine();
   	        appSoc.close();
-  	        return makeReadable(message);
+  	        return message;
   	    }catch (Exception e) {
   	    	return e.toString();
   	    }
 	}
 	
 	
-	
+	/* @param 1 Line of Data
+	 * @return a parsed line of data
+	 */
 	public static String makeReadable(String msg){
 		String message = "";
 		String minSpeed = "",aveSpeed = "",maxSpeed = "";
@@ -101,6 +108,9 @@ public class Getter {
 		return message;
 	}
 	
+	/* @param 1 Line of Data
+	 * @return The Average Degrees 
+	 */
 	public static int getDegree(String msg){
 		if(msg.indexOf("Dm")!=-1){
 			return Integer.parseInt(msg.substring(msg.indexOf("Dm")+3, msg.indexOf("Dm")+6));
@@ -108,6 +118,9 @@ public class Getter {
 		return 0;
 	}
 	
+	/* @param 1 Line of Data
+	 * @return The Maximum Speed
+	 */
 	public static double getSpeed(String msg){
 		if(msg.indexOf("Sx")!=-1){
 				return Double.parseDouble(msg.substring(msg.indexOf("Sx")+3, msg.indexOf("Sx")+6));

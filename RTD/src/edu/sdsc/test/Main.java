@@ -15,13 +15,13 @@ public class Main extends Activity {
 	    super.onCreate(savedInstanceState);
 	    setContentView(R.layout.main);
 	    
-	    /* Link the Buttons */
+	    // Link the Buttons
         mapButton = (Button)findViewById(R.id.buttonMap);
         locationButton = (Button)findViewById(R.id.buttonLocation);
         towerButton = (Button)findViewById(R.id.buttonTower);
         settingsButton = (Button)findViewById(R.id.buttonSetting);
 	    
-        /* Give the button their jobs*/
+        // Give the button their jobs
         mapButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 goToMaps();
@@ -45,21 +45,25 @@ public class Main extends Activity {
         
 	}
 	
+	/* Moves activity to maps */
 	private void goToMaps(){
 		Intent map = new Intent(this, Map.class);
 		startActivity(map);
 	}
 	
+	/* Moves activity to locations */
 	private void goToLocations(){
 		Intent loc = new Intent(this, Locations.class);
 		startActivity(loc);
 	}
-
+	
+	/* Moves activity to settings */
 	private void goToSettings(){
 		Intent set = new Intent(this, Settings.class);
 		startActivity(set);
 	}
     
+	/* Moves activity to towers */
     private void goToTowers(){
     	Intent tow = new Intent(this, Tower.class);
     	startActivity(tow);

@@ -11,6 +11,7 @@ import android.os.Handler;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.ItemizedOverlay;
@@ -25,10 +26,7 @@ import java.util.List;
 public class Map extends MapActivity {
 	public final String LAT = "33.019821";
 	public final String LONG = "-116.83857";
-	private String[] latitudes; 
-	private String[] longitudes; 
-	private String[] locations;
-	private String[] ports;	
+	private String[] latitudes, longitudes, locations, ports; 
     private MapView map=null;
     private MyLocationOverlay me=null;
     private SitesOverlay sites=null;
@@ -56,7 +54,7 @@ public class Map extends MapActivity {
         		Double.parseDouble(LONG)));
         mc.setZoom(10);
         map.setBuiltInZoomControls(true);
-
+        
         me=new MyLocationOverlay(this, map);
         map.getOverlays().add(me);
 
@@ -93,7 +91,7 @@ public class Map extends MapActivity {
         switch (item.getItemId()) {
             case R.id.myloc:    findLocation();
             					return true;
-            case R.id.lock:     lock();
+            case R.id.lock:     giveLocation();
             					return true;
             case R.id.reset: 	reset();
             					return true;
@@ -101,6 +99,7 @@ public class Map extends MapActivity {
         return true;
     }
     
+    /* Re/* Resets the position of the Map */
     private void findLocation(){
     	myLoc = me.getMyLocation();
     	if(tracking){
@@ -112,16 +111,17 @@ public class Map extends MapActivity {
     	}
     }
     
-    private void lock(){
-    	if(locked){
-    		map.setClickable(false);
-    		locked = true;
+    /* Makes a Toast notification of the location
+     * or "Turn on Tracking if overlay is off. */
+    private void giveLocation(){
+    	if(me.isMyLocationEnabled()){
+    		Toast.makeText(mContext, myLoc.toString(), Toast.LENGTH_LONG);
     	}else{
-    		map.setClickable(true);
-    		locked = false;
+    		Toast.makeText(mContext, "Turn on Tracking", Toast.LENGTH_SHORT);
     	}
     }
     
+    /* Resets the position of the Map */
     private void reset(){
     	mc.animateTo(getPoint(Double.parseDouble(LAT), 
         		Double.parseDouble(LONG)));
@@ -134,7 +134,12 @@ public class Map extends MapActivity {
     protected boolean isRouteDisplayed() {
         return(false);
     }
-
+    
+    /* @param Double Latitude and Double Longitude
+     * @return A new GeoPoint with those coordinates
+     * make sure those are the actual coordinates with the 
+     * decimals
+     * */
     private GeoPoint getPoint(double lat, double lon) {
         return(new GeoPoint((int)(lat*1000000.0), (int)(lon*1000000.0)));
     }
@@ -203,9 +208,6 @@ public class Map extends MapActivity {
         }
     }
 
-    //
-    // A RotateDrawable that isn't braindead.
-    //
     private class RotateDrawable extends Drawable {
         private Drawable mDrawable;
         private float mPivotX = 0.5f;
