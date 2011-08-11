@@ -8,7 +8,7 @@ import android.widget.Button;
 
 public class Main extends Activity {
 	
-	private Button mapButton, locationButton, towerButton, settingsButton;
+	private Button mapButton, locationButton, towerButton, settingsButton, graphButton;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -20,7 +20,8 @@ public class Main extends Activity {
         locationButton = (Button)findViewById(R.id.buttonLocation);
         towerButton = (Button)findViewById(R.id.buttonTower);
         settingsButton = (Button)findViewById(R.id.buttonSetting);
-	    
+	    graphButton = (Button)findViewById(R.id.buttonGraph); 
+        
         // Give the button their jobs
         mapButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -42,7 +43,11 @@ public class Main extends Activity {
                 goToSettings();
             }
         });
-        
+        graphButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                goToGraphs();
+            }
+        });
 	}
 	
 	/* Moves activity to maps */
@@ -67,5 +72,11 @@ public class Main extends Activity {
     private void goToTowers(){
     	Intent tow = new Intent(this, Tower.class);
     	startActivity(tow);
+    }
+    
+    /* Moves activity to graphs */
+    private void goToGraphs(){
+    	Intent gra = new Intent(this, Graph.class);
+    	startActivity(gra);
     }
 }

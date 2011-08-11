@@ -11,7 +11,7 @@ public class Getter {
 	
 	/* @param The port number for the tower
 	 * @return 1 line of data
-	 * Not efficient try not to use
+	 * Not efficient, try not to use.
 	 */
 	public static String get(int port){
 		if(port == 00000){
@@ -30,7 +30,7 @@ public class Getter {
 	}
 	
 	
-	/* @param 1 Line of Data
+	/* @param 1 Line of Data from WXT520 sensors
 	 * @return a parsed line of data
 	 */
 	public static String makeReadable(String msg){
@@ -108,7 +108,7 @@ public class Getter {
 		return message;
 	}
 	
-	/* @param 1 Line of Data
+	/* @param 1 Line of Data from WXT520 sensors
 	 * @return The Average Degrees 
 	 */
 	public static int getDegree(String msg){
@@ -118,7 +118,7 @@ public class Getter {
 		return 0;
 	}
 	
-	/* @param 1 Line of Data
+	/* @param 1 Line of Data from WXT520 sensors
 	 * @return The Maximum Speed
 	 */
 	public static double getSpeed(String msg){

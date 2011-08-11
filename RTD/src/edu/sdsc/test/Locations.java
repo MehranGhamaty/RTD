@@ -36,7 +36,7 @@ public class Locations extends ListActivity{
 				
 				//Display a Toast notification with the data
 				Toast.makeText(getApplicationContext(), ((TextView)view).getText() 
-						+ ": \n" + Getter.get(socket),Toast.LENGTH_SHORT).show();		      
+						+ ": \n" + Getter.makeReadable(Getter.get(socket)),Toast.LENGTH_SHORT).show();		      
 		}
 	  });
 	}

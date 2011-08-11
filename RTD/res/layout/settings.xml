@@ -1,21 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
         <PreferenceCategory
-                android:title="Use or don't Use">
+                android:title="Location">
                 <CheckBoxPreference
                         android:title="Use GPS"
                         android:defaultValue="true"
                         android:summary="Select to use GPS, deselect to not use GPS"
                         android:key="useGPS" />
-                <CheckBoxPreference
+                
+        </PreferenceCategory>
+        
+        <PreferenceCategory
+                android:title="Alarms">
+            <CheckBoxPreference
                         android:title="Use Alarms"
                         android:summary="Select to use Alarms, deselect to not use Alarms"
                         android:key="useAlarms"
                         android:defaultValue="false" />
-        </PreferenceCategory>
-        
-        <PreferenceCategory
-                android:title="Updateing">
 	        <ListPreference
 	                android:title="Update Interval"
 	                android:summary="Change the frequency of updating"
@@ -29,19 +30,6 @@
 	                android:title="alarms"
 	                android:key="alarm" />
         </PreferenceCategory>
-        
-        <PreferenceCategory
-        	android:title="Overlays">
-        	<CheckBoxPreference
-                        android:title="Wind Overlay"
-                        android:defaultValue="true"
-                        android:summary="displays wind direction and intesity"
-                        android:key="wind" />
-                <CheckBoxPreference
-                        android:title="Weather Overlay"
-                        android:summary="Displays humidity and rain"
-                        android:key="weather"
-                        android:defaultValue="false" />
+       	
         	
-        </PreferenceCategory>
 </PreferenceScreen>

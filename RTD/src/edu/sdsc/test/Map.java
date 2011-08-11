@@ -1,5 +1,8 @@
 package edu.sdsc.test;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import android.app.AlertDialog;
 import android.content.Context;
 import android.graphics.Canvas;
@@ -20,8 +23,6 @@ import com.google.android.maps.MapController;
 import com.google.android.maps.MapView;
 import com.google.android.maps.MyLocationOverlay;
 import com.google.android.maps.OverlayItem;
-import java.util.ArrayList;
-import java.util.List;
 
 public class Map extends MapActivity {
 	public final String LAT = "33.019821";

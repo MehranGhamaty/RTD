@@ -43,6 +43,7 @@
 	    	android:id="@+id/buttonTower" 
 	    	android:text="Tower" 
 	    	android:layout_width="fill_parent"></Button>
+	    <Button android:id="@+id/buttonGraph" android:layout_height="wrap_content" android:layout_width="fill_parent" android:text="Graph"></Button>
     	
     	</LinearLayout>
     	

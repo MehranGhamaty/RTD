@@ -6,6 +6,7 @@
     <string name="map_title">Map</string>
     <string name="settings_title">Settings</string>
     <string name="tower_title">Tower</string>
+    <string name="graph_title">Graph</string>
  
     
     <string-array name="lat_array">
