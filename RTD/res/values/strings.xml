@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hello">Hello World, Main!</string>
+    <string name="app_name">SDSC</string>
+    <string name="locations_title">Locations</string>
+    <string name="map_title">Map</string>
+    <string name="settings_title">Settings</string>
+    <string name="tower_title">Tower</string>
+ 
+    
+    <string-array name="lat_array">
+        <item>32.70</item>
+        <item>33.19</item>
+        <item>32.89</item>
+        <item>33.01</item>
+        <item>32.67</item>
+        <item>32.67</item>
+        <item>33.35</item>
+        <item>33.35</item>
+        <item>33.40</item> 
+        <item>32.91</item>
+        <item>33.13</item>
+        <item>32.52</item>
+		<item>33.03</item>
+    </string-array>
+    
+    <string-array name="lon_array">
+        <item>-116.76</item>
+        <item>-116.76</item>
+        <item>-116.42</item>
+        <item>-116.97</item>
+        <item>-117.24</item>
+        <item>-117.24</item>
+        <item>-116.98</item>
+        <item>-116.86</item>
+        <item>-117.19</item>
+        <item>-118.48</item> 
+        <item>-116.61</item>
+        <item>-116.43</item>
+		<item>-116.96</item>
+    </string-array>
+    
+    <string-array name="location_array">
+        <item>Lyons Peak</item>
+        <item>Mesa Grande</item>
+        <item>Mt. Laguna</item>
+        <item>Mt. Woodson</item>
+        <item>Cabrillo Monument Zone 3</item>
+        <item>Cabrillo Monument</item>
+		<item>Pala</item>
+        <item>Palomar Observatory</item>
+        <item>Red Mountain</item>
+        <item>San Clemente Island</item>
+        <item>Santa Ysabel</item>
+        <item>Toro Peak</item>
+        <item>West Ramona</item>
+    </string-array>
+    
+    <string-array name="port_array">
+        <item>12020</item>
+        <item>12025</item>
+        <item>12004</item>
+        <item>12024</item>
+        <item>00000</item>
+        <item>12026</item>
+        <item>00000</item>
+        <item>12028</item>
+        <item>00000</item>
+        <item>12031</item>
+        <item>12029</item>
+        <item>12027</item>
+        <item>12021</item>
+    </string-array>
+    
+    <string-array name="intervals_array">
+    	<item>10 Seconds</item>
+    	<item>30 Seconds</item>
+    	<item>1 Minute</item>
+    	<item>5 Minutes</item>
+    	<item>10 Minutes</item>
+    	<item>30 Minutes</item>
+    	<item>1 Hour</item>
+    </string-array>
+    
+    
+    
+    
+</resources>
