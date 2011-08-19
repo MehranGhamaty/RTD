@@ -9,32 +9,38 @@ import java.net.UnknownHostException;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.AdapterView.OnItemSelectedListener;
 
 public class Tower extends Activity {
-	private static final int[] FROM_COLOR = new int[]{255, 255, 255};
-	public static final int CLASS1 = 5, CLASS2 = 6, CLASS3 = 7, CLASS4 = 8, CLASS5 = 9;
-	private static final int THRESHOLD = 3;
-	private String[] ports, lat, lng;
-	private Drawable arrow;
-	private InfoGrabber ig;
+	public static final String TAG = "Tower";
+	public static final int CLASS1 = 1, CLASS2 = 2, CLASS3 = 3, CLASS4 = 4, CLASS5 = 5;
+	private String[] ports, lat, lng, locs;
+	private Drawable arrow, arrow1, arrow2, arrow3, arrow4;
 	private int currentPort;
+	private int bestTower;
 	private LocationManager locationManager;
 	private String bestProvider;
 	private Spinner spinner;
@@ -42,15 +48,25 @@ public class Tower extends Activity {
 	private TextView tv;
 	private ImageView arrowView;
 	private int ctr = 0;
+	private Drawable currentClassDrawable;
 	private Context context = this;
-	private int currentColor = Color.WHITE;
+	private int currentAngle = 0;
+	private int angle, speed;
+	private boolean useCompass, makeNew = false;
+	private SensorManager mSensorManager;
+	private Sensor mSensor;
+	private float[] mValues;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 	    super.onCreate(savedInstanceState);
 	    setContentView(R.layout.tower);
 	    
-	    ig = new InfoGrabber();
+	    new InfoGrabber();
+	    
+	    // Sensor stuff
+	    mSensorManager = (SensorManager)getSystemService(Context.SENSOR_SERVICE);
+        mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION);
 	    
 	    // Get the location manager
 		locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
@@ -63,22 +79,48 @@ public class Tower extends Activity {
 	    ports = getResources().getStringArray(R.array.port_array);  
 	    lat = getResources().getStringArray(R.array.lat_array);
         lng = getResources().getStringArray(R.array.lon_array);
-	    
+	    locs = getResources().getStringArray(R.array.location_array);
         
 	    spinner = (Spinner)findViewById(R.id.spinner);
 	    tv = (TextView)findViewById(R.id.textViewInfo);
 	    arrowView = (ImageView)findViewById(R.id.arrowView);
-	    arrow = getResources().getDrawable(R.drawable.arrow2);
 	    
-	    ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
-	            this, R.array.location_array, android.R.layout.simple_spinner_item);
+	    arrow = getResources().getDrawable(R.drawable.arrow);
+	    arrow1 = getResources().getDrawable(R.drawable.arrow1);
+	    arrow2 = getResources().getDrawable(R.drawable.arrow2);
+	    arrow3 = getResources().getDrawable(R.drawable.arrow3);
+	    arrow4 = getResources().getDrawable(R.drawable.arrow4);
+
+	    
+	    
+	    bestTower = getClosestTower();
+	    
+	    ArrayAdapter<CharSequence> adapter = new ArrayAdapter<CharSequence>(
+	    		this, android.R.layout.simple_spinner_item, locs);
 	    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 	    spinner.setAdapter(adapter);
 	    spinner.setOnItemSelectedListener(new MyOnItemSelectedListener());
-	    spinner.setSelection(getClosestTower());
+	    spinner.setSelection(bestTower);
 	    
+	    useCompass = true;
 	}
+	
+	@Override
+    protected void onResume(){
+        Log.d(TAG, "onResume");
+        super.onResume();
 
+        mSensorManager.registerListener(mListener, mSensor,
+                SensorManager.SENSOR_DELAY_GAME);
+    }
+
+    @Override
+    protected void onStop(){
+        Log.d(TAG, "onStop");
+        mSensorManager.unregisterListener(mListener);
+        super.onStop();
+    }
+    
 	public int getClosestTower(){
 		int bestTower = 0;
 		double bestDistance = Double.MAX_VALUE;
@@ -87,6 +129,7 @@ public class Tower extends Activity {
 		for(int k = 0;k < lat.length ; k++){
 			double distanceFrom = distance(Double.parseDouble(lat[k]),Double.parseDouble(lng[k]),
 									latitude,longitude);
+			locs[k] = locs[k] + " (" + (int)(distanceFrom + 0.5) + " miles)";
 			if(distanceFrom <= bestDistance){
 				bestTower = k;
 				bestDistance = distanceFrom;
@@ -113,6 +156,24 @@ public class Tower extends Activity {
 		return (rad * 180.0 / Math.PI);
 	}
 	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();//
+        inflater.inflate(R.layout.menu_compass_quit, menu);
+        return true;
+    }
+    
+    @Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.quit:    	finish();
+            					return true;
+            case R.id.usecompass:	compass();
+            					return true;
+        }
+        return true;
+    }
+	
 	public class MyOnItemSelectedListener implements OnItemSelectedListener {
 		
 	    public void onItemSelected(AdapterView<?> parent,
@@ -128,6 +189,27 @@ public class Tower extends Activity {
 	    }
 	}
 	
+	public void compass(){
+		//Toast notifications don't work. WHY???
+		if(useCompass){
+			useCompass = false;
+			Toast.makeText(context, "NOT using Compass", Toast.LENGTH_LONG);
+		}else{
+			useCompass = true;
+			Toast.makeText(context, "using Compass", Toast.LENGTH_LONG);
+		}
+		makeNew = true;
+	}
+	
+	private final SensorEventListener mListener = new SensorEventListener() {
+        public void onSensorChanged(SensorEvent event) {
+            //Log.d(TAG,"sensorChanged (" + event.values[0] + ", " + event.values[1] + ", " + event.values[2] + ")");
+            mValues = event.values;
+        }
+
+        public void onAccuracyChanged(Sensor sensor, int accuracy) {
+        }
+    };
 	
 	private class InfoGrabber extends AsyncTask<String, String, String> {
 		Socket socket;
@@ -165,58 +247,56 @@ public class Tower extends Activity {
 
 	     @Override
 	     protected void onProgressUpdate(String... values) {
-		     tv.setText(Getter.makeReadable(values[0])+"\nLine Number: "+ctr);
-		     arrowView.setImageDrawable(adjust(rotateDrawable(Getter.getDegree(values[0])),Getter.getSpeed(values[0])));
+		     tv.setText(Getter.makeReadable(values[0])+"\nHeading: "+ mValues[0] + "\nLine Number: "+ctr);
+		     speed = (int) Getter.getSpeed(values[0]);
+		     angle = Getter.getDegree(values[0]);
 		     
-	     }
-	     
-
-	     private Drawable adjust(Drawable d, Double severity){
-	         int to = Color.WHITE;
-	         if(severity >= CLASS1){
-	        	 to = Color.YELLOW;
-	         }if(severity >= CLASS2){
-	        	 to = Color.rgb(255, 140, 0);
-	         }if(severity >= CLASS3){
-	        	 to = Color.MAGENTA;
-	         }if(severity >= CLASS4){
-	        	 to = Color.RED;
-	         }if(severity >= CLASS5){
-	        	 to = Color.BLACK;
-	         }
-	         if(currentColor != to){
-		         Bitmap src = ((BitmapDrawable) d).getBitmap();
-		         Bitmap bitmap = src.copy(Bitmap.Config.ARGB_8888, true);
-		         for(int x = 0;x < bitmap.getWidth();x++)
-		             for(int y = 0;y < bitmap.getHeight();y++)
-		                 if(match(bitmap.getPixel(x, y))) 
-		                     bitmap.setPixel(x, y, to);
-	
-		         return new BitmapDrawable(bitmap);
+		     if(speed >= CLASS4){
+	        	 currentClassDrawable = arrow4;
+	         }else if(speed >= CLASS3){
+	        	 currentClassDrawable = arrow3;
+	         }else if(speed >= CLASS2){
+	        	 currentClassDrawable = arrow2;
+	         }else if(speed >= CLASS1){
+	        	 currentClassDrawable = arrow1;
 	         }else{
-	        	 return d;
+	        	 currentClassDrawable = arrow;
+	         }
+	         
+		     
+		     //Don't change the image unless it changed
+	         if((currentAngle != angle && angle  != -1) || makeNew){
+	        	 arrowView.setImageDrawable(rotateDrawable(findRelativeAngle(angle)));
+	        	 makeNew = false;
 	         }
 	     }
-
-	     private boolean match(int pixel){
-	         return Math.abs(Color.red(pixel) - FROM_COLOR[0]) < THRESHOLD &&
-	             Math.abs(Color.green(pixel) - FROM_COLOR[1]) < THRESHOLD &&
-	             Math.abs(Color.blue(pixel) - FROM_COLOR[2]) < THRESHOLD;
-	     }
 	     
-	     public Drawable rotateDrawable(int angle){
-	         Bitmap bm = BitmapFactory.decodeResource(getResources(), 
-	                R.drawable.arrow2);
+	     
+	     
+	     public int findRelativeAngle(int angle) {
+	    	int newAngle;
+	    	if(useCompass) {
+	    		Log.d(TAG, "Returning a new angle");
+	    		newAngle = (int) (angle - mValues[0]);
+	    	}else{
+	    		Log.d(TAG, "Returning unedited angle");
+	    		newAngle = angle;
+	    	}
+
+		    currentAngle = newAngle;
+	    	return newAngle;
+	     }
+
+	     private Drawable rotateDrawable(int angle){
+	         Bitmap bm = ((BitmapDrawable) currentClassDrawable).getBitmap();
 	         
 	         int width = bm.getWidth();
 	         int height = bm.getHeight();
 	         
 	         Matrix matrix = new Matrix();
 
+		     matrix.postRotate(angle);
 	         
-	         // rotate the Bitmap
-	         matrix.postRotate(angle);
-
 	         // recreate the new Bitmap
 	         Bitmap resizedBitmap = Bitmap.createBitmap(bm, 0, 0, 
 	                           width, height, matrix, true); 

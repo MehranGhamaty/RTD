@@ -82,13 +82,15 @@ public class Map extends MapActivity {
     	me.disableMyLocation();
     }	
 	
+	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();//
         inflater.inflate(R.layout.menu, menu);
         return true;
     }
     
-    public boolean onOptionsItemSelected(MenuItem item) {
+    @Override
+	public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.myloc:    findLocation();
             					return true;
@@ -221,7 +223,8 @@ public class Map extends MapActivity {
         public void rotate(int Degrees) {
         	mCurrentDegrees = Degrees;
         }
-        public void draw(Canvas canvas) {
+        @Override
+		public void draw(Canvas canvas) {
             int saveCount = canvas.save();
             Rect bounds = mDrawable.getBounds();
             int w = bounds.right - bounds.left;

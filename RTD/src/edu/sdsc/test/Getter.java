@@ -115,7 +115,7 @@ public class Getter {
 		if(msg.indexOf("Dm")!=-1){
 			return Integer.parseInt(msg.substring(msg.indexOf("Dm")+3, msg.indexOf("Dm")+6));
 		}
-		return 0;
+		return -1;
 	}
 	
 	/* @param 1 Line of Data from WXT520 sensors
@@ -126,7 +126,7 @@ public class Getter {
 				return Double.parseDouble(msg.substring(msg.indexOf("Sx")+3, msg.indexOf("Sx")+6));
 		}
 		
-		return 0.0;
+		return -1.0;
 	}
 	
 }

@@ -1,0 +1,8 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/usecompass"
+    	android:title="Don't/Do use Compass"	
+        android:icon="@drawable/navicon" />
+    <item android:id="@+id/quit"
+    	android:title="Quit"	
+        android:icon="@drawable/quiticon" />
+</menu>
