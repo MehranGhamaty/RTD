@@ -8,20 +8,15 @@ import java.net.UnknownHostException;
 
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.RectF;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.util.Log;
 import android.view.View;
-import android.view.Window;
-import android.widget.Toast;
 
 public class Graph extends Activity {
 
@@ -53,15 +48,20 @@ public class Graph extends Activity {
 			private static final int X_AXIS_STEP = 2, Y_AXIS_STEP = 3;
 			private int width, height;
 			
-			private int numberOfData = 0;
+			private int numberOfData = 0, currentData = 0;
 			private float[] speeds = new float[MAX_DATA];
-			private int currentData = 0;
+			private float[] xPoints = new float[MAX_DATA];
+			private float[] yPoints = new float[MAX_DATA];
 			/**
 			 * Constructor
 			 */
 			public GraphView(Context context) {
 				super(context);
 				new InfoGrabber().execute("");
+			}
+			
+			protected void onPause() {
+			    finish();
 			}
 			
 			protected void onSizeChanged (int w, int h, int oldw, int oldh){
@@ -96,6 +96,11 @@ public class Graph extends Activity {
 				numberPaint.setAntiAlias(true);
 				numberPaint.setTextSize(36);
 
+				connectingLinePaint = new Paint();
+				connectingLinePaint.setColor(Color.CYAN);
+				connectingLinePaint.setAntiAlias(true);
+				connectingLinePaint.setStrokeWidth(12f);
+				
 	            xAxis = new RectF(percentagesToPointsWidth(0.0f), percentagesToPointsHeight(0.89f),
 	            		percentagesToPointsWidth(1.0f), percentagesToPointsHeight(0.90f));
 	            
@@ -143,10 +148,21 @@ public class Graph extends Activity {
 			
 			private void drawPoints(Canvas canvas){
 				for(int k = 0;k<speeds.length;k++){
-					canvas.drawCircle( (percentagesToPointsWidth(0.10f + ((k+1)*STEPY)))/2, percentagesToPointsWidth(0.50f), RADIUS, dotsPaint);
+					yPoints[k] = calcHeight(speeds[k]);
+					xPoints[k] = percentagesToPointsWidth(0.21f + ((k+1)*STEPY))/2;
+					
+					if(k != 0){
+						canvas.drawLine(xPoints[k-1], yPoints[k-1], xPoints[k], yPoints[k], connectingLinePaint);
+					}
+					
+					canvas.drawCircle(xPoints[k], yPoints[k], RADIUS, dotsPaint);
 				}
 			}
 			
+			private float calcHeight(float speed){
+				Log.d(TAG, speed/12 + "-" + speed);
+				return (height+percentagesToPointsHeight(0.08f)) - percentagesToPointsHeight(speed/7);
+			}
 			private void drawLineNumbers(Canvas canvas){
 				for(int k = 1; k<X_LINES+3;k++){
 					canvas.drawText(k*X_AXIS_STEP + "", percentagesToPointsWidth(0.05f + (k*STEPY))
@@ -171,41 +187,41 @@ public class Graph extends Activity {
 				int startPort = PORT;
 			    @Override
 			        protected String doInBackground(String... params) {
-			    	if(PORT == 00000){
-						Toast.makeText(context, "SORRY TRY AGAIN", Toast.LENGTH_LONG);
-					}else{
-						try {
-							socket = new Socket (Getter.IP,PORT);
-						} catch (UnknownHostException e) {
-							e.printStackTrace();
+			    	
+					try {
+						socket = new Socket (Getter.IP,PORT);
+					} catch (UnknownHostException e) {
+						e.printStackTrace();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+					
+				    while(PORT == startPort){
+				    	try {
+				   	      	BufferedReader in = new BufferedReader(new
+				   	 	    InputStreamReader(socket.getInputStream()));
+							String message = in.readLine();
+							publishProgress(message);
 						} catch (IOException e) {
 							e.printStackTrace();
 						}
+				    }
 					
-				    	while(PORT == startPort){
-				   	        try {
-				   	        	BufferedReader in = new BufferedReader(new
-				   	 	   	    InputStreamReader(socket.getInputStream()));
-								String message = in.readLine();
-								publishProgress(message);
-							} catch (IOException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							}
-				    	}
-					}
 					return null;
 			     }
 
 			     @Override
 			     protected void onProgressUpdate(String... values) {
-				     speeds[currentData] = (float)Getter.getSpeed(values[0]);
+			    	 
+			    	 if((float)Getter.getSpeed(values[0]) != -1.0){
+			    		 speeds[currentData] = (float)Getter.getSpeed(values[0]);
+			    	 }
 				     currentData++;
-				     if(currentData >= 10){
+				     if(currentData >= MAX_DATA){
 				    	 currentData = 0;
 				     }
 				     numberOfData++;
-				     
+				     //Log.d(TAG, "Speed: "+speeds[currentData]+ "Current Data: " + currentData);
 			     }
 			     
 			     

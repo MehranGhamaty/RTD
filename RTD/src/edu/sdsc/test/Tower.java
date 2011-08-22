@@ -118,7 +118,13 @@ public class Tower extends Activity {
     protected void onStop(){
         Log.d(TAG, "onStop");
         mSensorManager.unregisterListener(mListener);
+        finish();
         super.onStop();
+    }
+    
+    @Override
+    protected void onPause() {
+       finish();
     }
     
 	public int getClosestTower(){

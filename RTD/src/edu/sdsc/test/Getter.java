@@ -112,8 +112,10 @@ public class Getter {
 	 * @return The Average Degrees 
 	 */
 	public static int getDegree(String msg){
-		if(msg.indexOf("Dm")!=-1){
-			return Integer.parseInt(msg.substring(msg.indexOf("Dm")+3, msg.indexOf("Dm")+6));
+		if(msg != null){
+			if(msg.indexOf("Dm")!=-1){
+				return Integer.parseInt(msg.substring(msg.indexOf("Dm")+3, msg.indexOf("Dm")+6));
+			}
 		}
 		return -1;
 	}
@@ -122,10 +124,11 @@ public class Getter {
 	 * @return The Maximum Speed
 	 */
 	public static double getSpeed(String msg){
-		if(msg.indexOf("Sx")!=-1){
-				return Double.parseDouble(msg.substring(msg.indexOf("Sx")+3, msg.indexOf("Sx")+6));
+		if(msg != null){
+			if(msg.indexOf("Sx")!=-1){
+					return Double.parseDouble(msg.substring(msg.indexOf("Sx")+3, msg.indexOf("Sx")+6));
+			}	
 		}
-		
 		return -1.0;
 	}
 	
