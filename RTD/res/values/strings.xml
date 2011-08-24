@@ -69,6 +69,12 @@
         <item>12021</item>
     </string-array>
     
+    <string-array name="options_array">
+        <item>Speed</item>
+        <item>Angle</item>
+        <item>Humidity</item>
+    </string-array>
+    
     <string-array name="intervals_array">
     	<item>10 Seconds</item>
     	<item>30 Seconds</item>

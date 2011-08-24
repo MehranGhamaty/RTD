@@ -36,7 +36,7 @@ import android.widget.AdapterView.OnItemSelectedListener;
 
 public class Tower extends Activity {
 	public static final String TAG = "Tower";
-	public static final int CLASS1 = 1, CLASS2 = 2, CLASS3 = 3, CLASS4 = 4, CLASS5 = 5;
+	public static final int CLASS1 = 5, CLASS2 = 6, CLASS3 = 7, CLASS4 = 8, CLASS5 = 11;
 	private String[] ports, lat, lng, locs;
 	private Drawable arrow, arrow1, arrow2, arrow3, arrow4;
 	private int currentPort;
@@ -62,7 +62,6 @@ public class Tower extends Activity {
 	    super.onCreate(savedInstanceState);
 	    setContentView(R.layout.tower);
 	    
-	    new InfoGrabber();
 	    
 	    // Sensor stuff
 	    mSensorManager = (SensorManager)getSystemService(Context.SENSOR_SERVICE);
@@ -125,6 +124,7 @@ public class Tower extends Activity {
     @Override
     protected void onPause() {
        finish();
+       super.onPause();
     }
     
 	public int getClosestTower(){

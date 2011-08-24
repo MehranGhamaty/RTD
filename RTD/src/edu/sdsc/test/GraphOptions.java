@@ -9,20 +9,21 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.AdapterView.OnItemClickListener;
 
-public class Locations extends ListActivity{
-	private String[] locations;
-	private Intent options;
+public class GraphOptions extends ListActivity{
+	private String[] options, locations;
+	private Intent graph; 
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 	  super.onCreate(savedInstanceState);
 	  
-	  options = new Intent(this, GraphOptions.class);
+	  graph = new Intent(this, Graph.class);
 	  
-	  
-	  //Sets the layout to be a list of the locations
 	  locations = getResources().getStringArray(R.array.location_array);
-	  setListAdapter(new ArrayAdapter<String>(this, R.layout.list_item, locations));
+	  setTitle(locations[getIntent().getIntExtra("Location", 0)]);
+	  //Sets the layout to be a list of the locations
+	  options = getResources().getStringArray(R.array.options_array);
+	  setListAdapter(new ArrayAdapter<String>(this, R.layout.list_item, options));
 	  
 	  ListView lv = getListView();
 	  lv.setTextFilterEnabled(true);
@@ -33,8 +34,9 @@ public class Locations extends ListActivity{
 		@Override
 		public void onItemClick(AdapterView<?> arg0, View view, int position,
 				long id) {
-				options.putExtra("Location", position);
-				startActivity(options);
+				graph.putExtra("Type", position);
+				graph.putExtra("Location",  getIntent().getIntExtra("Location", 0));
+				startActivity(graph);      
 		}
 	  });
 	}

@@ -35,6 +35,11 @@
         		android:theme="@android:style/Theme">
 		</activity>
 		
+		<activity android:name=".GraphOptions"
+         		android:label="@string/locations_title"
+        		android:theme="@android:style/Theme">
+		</activity>
+		
 		<activity android:name=".Tower"
          		android:label="@string/tower_title"
         		android:theme="@android:style/Theme"

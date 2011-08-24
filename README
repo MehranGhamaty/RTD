@@ -5,3 +5,37 @@ The data is being retrieved from HPWREN sensor towers using WXT520 sensors.
 for my information please visit:
 
 http://hpwren.ucsd.edu/
+
+To do list:
+
+Make the graphView cleaner:
+
+Some lines are thinker than others because
+of how I made it, connecting lines go over
+dots, when there is no data the lines just
+go down which looks strange. Should just
+connect two dots with blank inbetween. Also
+need to add a title of the location and type
+of graph. Get that extra dot in there. Change
+the way it updates so that it pushes dots down
+instead of updating in a loop. Also should change
+the background so its static, as to not kill the
+battery.
+
+Fix location:
+
+make it so that the options go to the right 
+type for graphView.
+
+remove or fix the map class:
+
+Just doesn't work right now, need to update it 
+a little or just get rid of it.
+
+remove or replace the settings button:
+
+Thinking to add a small manual to help explain
+the application a little better, but then it doesn't
+need its own button, it could go to a menu option, 
+but then again there would be a lot of free space not 
+being used.

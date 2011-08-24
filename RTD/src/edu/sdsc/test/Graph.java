@@ -14,23 +14,39 @@ import android.graphics.Paint;
 import android.graphics.RectF;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.util.Log;
 import android.view.View;
 
 public class Graph extends Activity {
-
-	public Context context = this;
+	public static final int TYPE_SPEED = 0;
+	public static final int TYPE_ANGLE = 1;
+	public static final int TYPE_HUMIDITY = 2;
+	
+	private String[] locations, options, ports;
+	private String currentLocation;
+	private int currentPort;
+	private int type;
 	
 	/** Called when the activity is first created. */
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(new GraphView(this));
+		
+		locations = getResources().getStringArray(R.array.location_array);
+		options = getResources().getStringArray(R.array.options_array);
+		ports = getResources().getStringArray(R.array.port_array);
+		
+		int selected = getIntent().getIntExtra("Location", 0);
+		currentLocation = locations[selected];
+		currentPort = Integer.parseInt(ports[selected]);
+		type = getIntent().getIntExtra("Type", 0);
 	}
-	
+	@Override
+	protected void onPause() {
+	    finish();
+    	super.onPause();
+	}
 	public class GraphView extends View {
-			
-			public final static int PORT = 12020;
 		
 			public final static String TAG = "GraphView";
 			public final static float STEPX = 0.225f, STEPY = 0.18f;
@@ -60,9 +76,8 @@ public class Graph extends Activity {
 				new InfoGrabber().execute("");
 			}
 			
-			protected void onPause() {
-			    finish();
-			}
+		
+			
 			
 			protected void onSizeChanged (int w, int h, int oldw, int oldh){
 				width = w;
@@ -160,8 +175,7 @@ public class Graph extends Activity {
 			}
 			
 			private float calcHeight(float speed){
-				Log.d(TAG, speed/12 + "-" + speed);
-				return (height+percentagesToPointsHeight(0.08f)) - percentagesToPointsHeight(speed/7);
+				return (height+percentagesToPointsHeight(0.08f)) - percentagesToPointsHeight(speed/12);
 			}
 			private void drawLineNumbers(Canvas canvas){
 				for(int k = 1; k<X_LINES+3;k++){
@@ -184,19 +198,19 @@ public class Graph extends Activity {
 			
 			private class InfoGrabber extends AsyncTask<String, String, String> {
 				Socket socket;
-				int startPort = PORT;
+				int startPort = currentPort;
 			    @Override
 			        protected String doInBackground(String... params) {
-			    	
+
 					try {
-						socket = new Socket (Getter.IP,PORT);
+						socket = new Socket (Getter.IP,currentPort);
 					} catch (UnknownHostException e) {
 						e.printStackTrace();
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
 					
-				    while(PORT == startPort){
+				    while(currentPort == startPort){
 				    	try {
 				   	      	BufferedReader in = new BufferedReader(new
 				   	 	    InputStreamReader(socket.getInputStream()));

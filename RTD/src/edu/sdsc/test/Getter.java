@@ -109,7 +109,7 @@ public class Getter {
 	}
 	
 	/* @param 1 Line of Data from WXT520 sensors
-	 * @return The Average Degrees 
+	 * @return The Average Degrees, returns -1 if data cannot be found
 	 */
 	public static int getDegree(String msg){
 		if(msg != null){
@@ -121,7 +121,7 @@ public class Getter {
 	}
 	
 	/* @param 1 Line of Data from WXT520 sensors
-	 * @return The Maximum Speed
+	 * @return The Maximum Speed, returns -1.0 if data cannot be found
 	 */
 	public static double getSpeed(String msg){
 		if(msg != null){
