@@ -18,6 +18,7 @@ import android.util.Log;
 import android.view.View;
 
 public class Graph extends Activity {
+	public final static String TAG = "GraphView";
 	public static final int TYPE_SPEED = 0;
 	public static final int TYPE_ANGLE = 1;
 	public static final int TYPE_HUMIDITY = 2;
@@ -40,6 +41,8 @@ public class Graph extends Activity {
 		currentLocation = locations[selected];
 		currentPort = Integer.parseInt(ports[selected]);
 		type = getIntent().getIntExtra("Type", 0);
+		
+		Log.d(TAG, type+currentPort+currentLocation);
 	}
 	@Override
 	protected void onPause() {
@@ -48,11 +51,10 @@ public class Graph extends Activity {
 	}
 	public class GraphView extends View {
 		
-			public final static String TAG = "GraphView";
 			public final static float STEPX = 0.225f, STEPY = 0.18f;
 			private final static int RADIUS = 15;
 			//Drawing Tools
-			private Paint bgGridPaint, axisPaint, connectingLinePaint, dotsPaint, alertPaint, numberPaint;
+			private Paint bgGridPaint, axisPaint, connectingLinePaint, dotsPaint, alertPaint, numberPaint, titlePaint;
 			
 			private RectF[] yGrid, xGrid;
 			private RectF alertLine, xAxis, yAxis;
@@ -65,7 +67,7 @@ public class Graph extends Activity {
 			private int width, height;
 			
 			private int numberOfData = 0, currentData = 0;
-			private float[] speeds = new float[MAX_DATA];
+			private float[] dataPoints = new float[MAX_DATA];
 			private float[] xPoints = new float[MAX_DATA];
 			private float[] yPoints = new float[MAX_DATA];
 			/**
@@ -73,6 +75,7 @@ public class Graph extends Activity {
 			 */
 			public GraphView(Context context) {
 				super(context);
+				Log.d(TAG, "About to start");
 				new InfoGrabber().execute("");
 			}
 			
@@ -110,7 +113,12 @@ public class Graph extends Activity {
 				numberPaint.setColor(Color.BLUE);
 				numberPaint.setAntiAlias(true);
 				numberPaint.setTextSize(36);
-
+				
+				titlePaint = new Paint();
+				titlePaint.setColor(Color.CYAN);
+				titlePaint.setAntiAlias(true);
+				titlePaint.setTextSize(36);
+				
 				connectingLinePaint = new Paint();
 				connectingLinePaint.setColor(Color.CYAN);
 				connectingLinePaint.setAntiAlias(true);
@@ -155,28 +163,35 @@ public class Graph extends Activity {
 				canvas.drawRect(xAxis, axisPaint);
 				canvas.drawRect(yAxis, axisPaint);
 				
+				
+				drawLines(canvas);
 				drawPoints(canvas);
+				
+				drawTitle(canvas);
 				
 				canvas.drawRect(alertLine, alertPaint);
 				invalidate();
 			}
 			
 			private void drawPoints(Canvas canvas){
-				for(int k = 0;k<speeds.length;k++){
-					yPoints[k] = calcHeight(speeds[k]);
+				for(int k = 0;k<dataPoints.length;k++){
+					yPoints[k] = calcHeight(dataPoints[k]);
 					xPoints[k] = percentagesToPointsWidth(0.21f + ((k+1)*STEPY))/2;
-					
-					if(k != 0){
-						canvas.drawLine(xPoints[k-1], yPoints[k-1], xPoints[k], yPoints[k], connectingLinePaint);
-					}
 					
 					canvas.drawCircle(xPoints[k], yPoints[k], RADIUS, dotsPaint);
 				}
 			}
 			
-			private float calcHeight(float speed){
-				return (height+percentagesToPointsHeight(0.08f)) - percentagesToPointsHeight(speed/12);
+			private void drawLines(Canvas canvas){
+				for(int k = 1;k<dataPoints.length;k++){
+					canvas.drawLine(xPoints[k-1], yPoints[k-1], xPoints[k], yPoints[k], connectingLinePaint);
+				}
 			}
+			
+			private float calcHeight(float speed){
+				return (height+percentagesToPointsHeight(0.05f)) - percentagesToPointsHeight(speed/12);
+			}
+			
 			private void drawLineNumbers(Canvas canvas){
 				for(int k = 1; k<X_LINES+3;k++){
 					canvas.drawText(k*X_AXIS_STEP + "", percentagesToPointsWidth(0.05f + (k*STEPY))
@@ -185,9 +200,11 @@ public class Graph extends Activity {
 					canvas.drawText(k*Y_AXIS_STEP + "", percentagesToPointsWidth(0.03f)
 							, percentagesToPointsHeight(0.99f - ((k)*(STEPY+0.05f))), numberPaint);
 				}
-				
 			}
 			
+			private void drawTitle(Canvas canvas){
+				canvas.drawText(currentLocation +", "+  options[type], percentagesToPointsWidth(0.60f), percentagesToPointsHeight(0.10f), titlePaint);
+			}
 			
 			public float percentagesToPointsWidth(float point){
 				return point*width;
@@ -198,44 +215,57 @@ public class Graph extends Activity {
 			
 			private class InfoGrabber extends AsyncTask<String, String, String> {
 				Socket socket;
-				int startPort = currentPort;
+				//int startPort = currentPort;
 			    @Override
 			        protected String doInBackground(String... params) {
-
-					try {
-						socket = new Socket (Getter.IP,currentPort);
-					} catch (UnknownHostException e) {
-						e.printStackTrace();
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-					
-				    while(currentPort == startPort){
-				    	try {
-				   	      	BufferedReader in = new BufferedReader(new
-				   	 	    InputStreamReader(socket.getInputStream()));
-							String message = in.readLine();
-							publishProgress(message);
+	
+						try {
+							Log.d(TAG, "Making socket");
+							socket = new Socket (Getter.IP,currentPort);
+						} catch (UnknownHostException e) {
+							e.printStackTrace();
 						} catch (IOException e) {
 							e.printStackTrace();
 						}
+						Log.d(TAG, "About to enter the loop");
+					    while(true){
+					    	try {
+					   	      	BufferedReader in = new BufferedReader(new
+					   	 	    InputStreamReader(socket.getInputStream()));
+								String message = in.readLine();
+								Log.d(TAG, message);
+								publishProgress(message);
+							} catch (IOException e) {
+								e.printStackTrace();
+							}
 				    }
 					
-					return null;
 			     }
 
 			     @Override
 			     protected void onProgressUpdate(String... values) {
-			    	 
-			    	 if((float)Getter.getSpeed(values[0]) != -1.0){
-			    		 speeds[currentData] = (float)Getter.getSpeed(values[0]);
+			    	 if(type == TYPE_SPEED){
+				    	 if((float)Getter.getSpeed(values[0]) != -1.0){
+				    		 dataPoints[currentData] = (float)Getter.getSpeed(values[0]);
+				    	 }
+			    	 }else if(type == TYPE_ANGLE){
+				    	 if((float)Getter.getSpeed(values[0]) != -1.0){
+				    		 dataPoints[currentData] = (float)Getter.getDegree(values[0]);
+				    	 }
+			    	 }else if(type == TYPE_HUMIDITY){
+				    	 if((float)Getter.getSpeed(values[0]) != -1.0){
+				    		 dataPoints[currentData] = (float)Getter.getSpeed(values[0]);
+				    	 }
 			    	 }
+			    	 
+			    	 
+			    	 
 				     currentData++;
 				     if(currentData >= MAX_DATA){
 				    	 currentData = 0;
 				     }
 				     numberOfData++;
-				     //Log.d(TAG, "Speed: "+speeds[currentData]+ "Current Data: " + currentData);
+				     //Log.d(TAG, "Speed: "+dataPoints[currentData]+ "Current Data: " + currentData);
 			     }
 			     
 			     

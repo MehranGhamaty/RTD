@@ -46,8 +46,7 @@ public class Main extends Activity {
 	
 	/* Moves activity to maps */
 	private void goToMaps(){
-		Intent map = new Intent(this, Map.class);
-		startActivity(map);
+		
 	}
 	
 	/* Moves activity to locations */
@@ -68,9 +67,4 @@ public class Main extends Activity {
     	startActivity(tow);
     }
     
-    /* Moves activity to graphs */
-    private void goToGraphs(){
-    	Intent gra = new Intent(this, Graph.class);
-    	startActivity(gra);
-    }
 }
