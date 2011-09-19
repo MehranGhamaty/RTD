@@ -21,7 +21,6 @@ public class Graph extends Activity {
 	public final static String TAG = "GraphView";
 	public static final int TYPE_SPEED = 0;
 	public static final int TYPE_ANGLE = 1;
-	public static final int TYPE_HUMIDITY = 2;
 	
 	private String[] locations, options, ports;
 	private String currentLocation;
@@ -40,9 +39,8 @@ public class Graph extends Activity {
 		int selected = getIntent().getIntExtra("Location", 0);
 		currentLocation = locations[selected];
 		currentPort = Integer.parseInt(ports[selected]);
-		type = getIntent().getIntExtra("Type", 0);
-		
-		Log.d(TAG, type+currentPort+currentLocation);
+		//type = getIntent().getIntExtra("Type", 0);
+		type = 0;
 	}
 	@Override
 	protected void onPause() {
@@ -252,20 +250,13 @@ public class Graph extends Activity {
 				    	 if((float)Getter.getSpeed(values[0]) != -1.0){
 				    		 dataPoints[currentData] = (float)Getter.getDegree(values[0]);
 				    	 }
-			    	 }else if(type == TYPE_HUMIDITY){
-				    	 if((float)Getter.getSpeed(values[0]) != -1.0){
-				    		 dataPoints[currentData] = (float)Getter.getSpeed(values[0]);
-				    	 }
 			    	 }
-			    	 
-			    	 
 			    	 
 				     currentData++;
 				     if(currentData >= MAX_DATA){
 				    	 currentData = 0;
 				     }
 				     numberOfData++;
-				     //Log.d(TAG, "Speed: "+dataPoints[currentData]+ "Current Data: " + currentData);
 			     }
 			     
 			     

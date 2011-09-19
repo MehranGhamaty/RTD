@@ -8,6 +8,7 @@ import java.net.UnknownHostException;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.graphics.drawable.BitmapDrawable;
@@ -19,6 +20,8 @@ import android.hardware.SensorManager;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -28,6 +31,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -38,6 +42,7 @@ public class Tower extends Activity {
 	public static final String TAG = "Tower";
 	public static final int CLASS1 = 5, CLASS2 = 6, CLASS3 = 7, CLASS4 = 8, CLASS5 = 11;
 	private String[] ports, lat, lng, locs;
+	private Button graphButton;
 	private Drawable arrow, arrow1, arrow2, arrow3, arrow4;
 	private int currentPort;
 	private int bestTower;
@@ -50,12 +55,19 @@ public class Tower extends Activity {
 	private int ctr = 0;
 	private Drawable currentClassDrawable;
 	private Context context = this;
-	private int currentAngle = 0;
 	private int angle, speed;
 	private boolean useCompass, makeNew = false;
 	private SensorManager mSensorManager;
 	private Sensor mSensor;
 	private float[] mValues;
+	private Intent graph;
+	
+	// hand dynamics -- all are angular expressed in F degrees
+	private float currentAngle = 0;
+	private float targetAngle = 0;
+	private float arrowVelocity = 0.0f;
+	private float arrowAcceleration = 0.0f;
+	private long lastMoveTime = -1L;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -102,6 +114,16 @@ public class Tower extends Activity {
 	    spinner.setSelection(bestTower);
 	    
 	    useCompass = true;
+	    
+	    graph = new Intent(this, Graph.class);
+	    
+	    graphButton = (Button)findViewById(R.id.buttonGraph);
+	    graphButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+            	graph.putExtra("Location", bestTower);
+                startActivity(graph);
+            }
+        });
 	}
 	
 	@Override
@@ -129,6 +151,9 @@ public class Tower extends Activity {
     
 	public int getClosestTower(){
 		int bestTower = 0;
+		if(location == null){
+			return bestTower;
+		}
 		double bestDistance = Double.MAX_VALUE;
 		double latitude = location.getLatitude();
 		double longitude = location.getLongitude();
@@ -176,10 +201,18 @@ public class Tower extends Activity {
             					return true;
             case R.id.usecompass:	compass();
             					return true;
+            case R.id.refresh:	reload();
+								return true;
         }
         return true;
     }
-	
+    
+    public void reload() {
+        Intent intent = getIntent();
+        finish();
+        startActivity(intent);
+    }
+    
 	public class MyOnItemSelectedListener implements OnItemSelectedListener {
 		
 	    public void onItemSelected(AdapterView<?> parent,
@@ -233,19 +266,22 @@ public class Tower extends Activity {
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
-			
-		    	while(currentPort == startPort){
-		   	        try {
-		   	        	BufferedReader in = new BufferedReader(new
-		   	 	   	    InputStreamReader(socket.getInputStream()));
-						String message = in.readLine();
-						publishProgress(message);
-						ctr++;
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-		    	}
+				if(isOnline()){
+			    	while(currentPort == startPort){
+			   	        try {
+			   	        	BufferedReader in = new BufferedReader(new
+			   	 	   	    InputStreamReader(socket.getInputStream()));
+							String message = in.readLine();
+							publishProgress(message);
+							ctr++;
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+			    	}
+				}else{
+					publishProgress("No Internet Stopping");
+				}
 		    	ctr = 0;
 			}
 			return null;
@@ -253,31 +289,49 @@ public class Tower extends Activity {
 
 	     @Override
 	     protected void onProgressUpdate(String... values) {
-		     tv.setText(Getter.makeReadable(values[0])+"\nHeading: "+ mValues[0] + "\nLine Number: "+ctr);
-		     speed = (int) Getter.getSpeed(values[0]);
-		     angle = Getter.getDegree(values[0]);
-		     
-		     if(speed >= CLASS4){
-	        	 currentClassDrawable = arrow4;
-	         }else if(speed >= CLASS3){
-	        	 currentClassDrawable = arrow3;
-	         }else if(speed >= CLASS2){
-	        	 currentClassDrawable = arrow2;
-	         }else if(speed >= CLASS1){
-	        	 currentClassDrawable = arrow1;
-	         }else{
-	        	 currentClassDrawable = arrow;
-	         }
-	         
-		     
-		     //Don't change the image unless it changed
-	         if((currentAngle != angle && angle  != -1) || makeNew){
-	        	 arrowView.setImageDrawable(rotateDrawable(findRelativeAngle(angle)));
-	        	 makeNew = false;
-	         }
+	    	 if(values[0] != null){
+	    		 if(values[0] == "No Internet Stopping"){
+	    			 tv.setText(values[0]);
+	    		 }else{
+				     tv.setText(Getter.makeReadable(values[0])+"\nHeading: "+ mValues[0] + "\nLine Number: "+ctr);
+				     speed = (int) Getter.getSpeed(values[0]);
+				     angle = Getter.getDegree(values[0]);
+				     
+				     if(speed >= CLASS4){
+			        	 currentClassDrawable = arrow4;
+			         }else if(speed >= CLASS3){
+			        	 currentClassDrawable = arrow3;
+			         }else if(speed >= CLASS2){
+			        	 currentClassDrawable = arrow2;
+			         }else if(speed >= CLASS1){
+			        	 currentClassDrawable = arrow1;
+			         }else{
+			        	 currentClassDrawable = arrow;
+			         }
+			         
+				     
+				     //Don't change the image unless it changed
+			         if((currentAngle != angle && angle  != -1) || makeNew){
+			        	 arrowView.setImageDrawable(rotateDrawable(findRelativeAngle(angle)));
+			        	 makeNew = false;
+			         }
+	    		 }
+	    	 }
 	     }
 	     
-	     
+	     public boolean isOnline() {
+	    	    ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+	    	    try{ 
+	    	    	NetworkInfo netInfo = cm.getActiveNetworkInfo();
+	    	    	if (netInfo != null && netInfo.isConnectedOrConnecting()) {
+		    	        return true;
+		    	    }
+		    	    return false;
+	    	    }catch(NullPointerException e){
+	    	    	return false;
+	    	    }
+	    	    
+	     }
 	     
 	     public int findRelativeAngle(int angle) {
 	    	int newAngle;
@@ -304,14 +358,41 @@ public class Tower extends Activity {
 		     matrix.postRotate(angle);
 	         
 	         // recreate the new Bitmap
-	         Bitmap resizedBitmap = Bitmap.createBitmap(bm, 0, 0, 
+	         Bitmap rotatedBitmap = Bitmap.createBitmap(bm, 0, 0, 
 	                           width, height, matrix, true); 
 	     
 	         // make a Drawable from Bitmap to allow to set the BitMap 
 	         // to the ImageView, ImageButton or what ever
-	         return new BitmapDrawable(resizedBitmap);
+	         return new BitmapDrawable(rotatedBitmap);
 	     }
+	     
+	     @SuppressWarnings("unused")
+	     private void moveHand() {
+	 		if (lastMoveTime != -1L) {
+	 			long currentTime = System.currentTimeMillis();
+	 			float delta = (currentTime - lastMoveTime) / 1000.0f;
 
+	 			float direction = Math.signum(arrowVelocity);
+	 			if (Math.abs(arrowVelocity) < 90.0f) {
+	 				arrowAcceleration = 5.0f * (targetAngle - currentAngle);
+	 			} else {
+	 				arrowAcceleration = 0.0f;
+	 			}
+	 			currentAngle += arrowVelocity * delta;
+	 			arrowVelocity += arrowAcceleration * delta;
+	 			if ((targetAngle - currentAngle) * direction < 0.01f * direction) {
+	 				currentAngle = targetAngle;
+	 				arrowVelocity = 0.0f;
+	 				arrowAcceleration = 0.0f;
+	 				lastMoveTime = -1L;
+	 			} else {
+	 				lastMoveTime = System.currentTimeMillis();				
+	 			}
+	 		} else {
+	 			lastMoveTime = System.currentTimeMillis();
+	 		
+	 		}
+	 	}
 
 	 }
 }

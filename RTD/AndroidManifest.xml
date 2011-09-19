@@ -2,48 +2,24 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="edu.sdsc.test"
       android:versionCode="1"
-      android:versionName="0.5">
-    <uses-sdk android:minSdkVersion="10" />
+      android:versionName="0.6">
+    <uses-sdk android:minSdkVersion="4" />
 	<uses-permission android:name="android.permission.INTERNET" />
+	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 	<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 	<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 	
 	
     <application android:icon="@drawable/icon" android:label="@string/app_name" android:debuggable="true">
-        <activity android:name=".Main"
-                  android:label="@string/app_name"
-                  android:theme="@android:style/Theme.NoTitleBar">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-        
-        <activity android:name=".Settings"
-          		android:label="@string/settings_title"
-          		android:theme="@android:style/Theme">
-		</activity>
-		
-		<activity android:name=".Map"
-          		android:label="@string/map_title"
-          		android:theme="@android:style/Theme.NoTitleBar"
-          		android:screenOrientation="landscape">
-		</activity>
 
-		<activity android:name=".Locations"
-         		android:label="@string/locations_title"
-        		android:theme="@android:style/Theme">
-		</activity>
-		
-		<activity android:name=".GraphOptions"
-         		android:label="@string/locations_title"
-        		android:theme="@android:style/Theme">
-		</activity>
-		
 		<activity android:name=".Tower"
          		android:label="@string/tower_title"
         		android:theme="@android:style/Theme"
         		android:screenOrientation="portrait">
+        	<intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
 		</activity>
 		
 		<activity android:name=".Graph"
@@ -51,11 +27,7 @@
         		android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
           		android:screenOrientation="landscape">
 		</activity>
-		
-		<service android:enabled="true" android:name=".WarningService" />
-		
-		<uses-library android:name="com.google.android.maps" />
-		
+				
     </application>
     
 </manifest>

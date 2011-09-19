@@ -2,6 +2,9 @@
     <item android:id="@+id/usecompass"
     	android:title="Don't/Do use Compass"	
         android:icon="@drawable/navicon" />
+    <item android:id="@+id/refresh"
+    	android:title="Reload"	
+        android:icon="@drawable/reloadicon" />
     <item android:id="@+id/quit"
     	android:title="Quit"	
         android:icon="@drawable/quiticon" />

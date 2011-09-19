@@ -6,28 +6,3 @@ for my information please visit:
 
 http://hpwren.ucsd.edu/
 
-To do list:
-
-1) Make the graphView cleaner:
-
-* Some lines are thinker than others because
-of how I made it.
-
-* when there is no data the lines just
-go down which looks strange. 
-
-* Get that extra dot in there. 
-
-* Change the way it updates so that it pushes dots down
-instead of updating in a loop. 
-
-* Change the background so its static, as to not kill the
-battery.
-
-2) remove or replace the settings button:
-
-* Thinking to add a small manual to help explain
-the application a little better, but then it doesn't
-need its own button, it could go to a menu option, 
-but then again there would be a lot of free space not 
-being used.
